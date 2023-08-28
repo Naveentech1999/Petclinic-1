@@ -14,7 +14,7 @@ pipeline {
         
         stage("Git Checkout"){
             steps{
-                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/writetoritika/Petclinic.git'
+                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/Naveentech1999/Petclinic-1.git'
             }
         }
         
@@ -59,9 +59,9 @@ pipeline {
                 script{
                    withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker') {
                         
-                        sh "docker build -t petcliniclal ."
-                        sh "docker tag petclinicalal naveentech1999/petclinicalal123:latest "
-                        sh "docker push naveentech1999/petclinicalal123:latest "
+                        sh "docker build -t petcliniclals ."
+                        sh "docker tag petclinicalal naveentech1999/petcliniclals:latest "
+                        sh "docker push naveentech1999/petcliniclals:latest "
                     
                     }
                 }
@@ -69,7 +69,7 @@ pipeline {
         }
         stage("Deploy Using Docker"){
             steps{
-                sh " docker run -d --name pet1 -p 8082:8082 naveentech1999/petclinicalal123:latest "
+                sh " docker run -d --name pet1 -p 8082:8082 naveentech1999/petcliniclals:latest "
             }
         }
         
