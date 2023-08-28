@@ -2,14 +2,14 @@ pipeline {
     agent any 
     
     tools{
-        jdk 'jdk11'
+        jdk 'java'
         maven 'maven3'
     }
     
-    environment {
+     environment {
         SCANNER_HOME=tool 'sonar-scanner'
     }
-    
+
     stages{
         
         stage("Git Checkout"){
@@ -33,7 +33,7 @@ pipeline {
         stage("Sonarqube Analysis "){
             steps{
                 withSonarQubeEnv('sonar-server') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Petclinic \
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Petcliniclal \
                     -Dsonar.java.binaries=. \
                     -Dsonar.projectKey=Petclinic '''
     
@@ -41,42 +41,37 @@ pipeline {
             }
         }
         
-        stage("OWASP Dependency Check"){
-            steps{
-                dependencyCheck additionalArguments: '--scan ./ --format HTML ', odcInstallation: 'DP'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-            }
-        }
-        
-         stage("Build"){
+      
+        stage("Build"){
             steps{
                 sh " mvn clean install"
             }
         }
         
+          stage("OWASP Dependency Check"){
+            steps{
+                dependencyCheck additionalArguments: '--scan ./ ' , odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
         stage("Docker Build & Push"){
             steps{
                 script{
-                   withDockerRegistry(credentialsId: ''9c41157e-870c-4aae-8e00-cab3a8b216bb', toolName: 'docker') {
+                   withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker') {
                         
-                        sh "docker build -t image1 ."
-                        sh "docker tag image1 writetoritika/pet-clinic123:latest "
-                        sh "docker push writetoritika/pet-clinic123:latest "
+                        sh "docker build -t petcliniclal ."
+                        sh "docker tag petclinicalal naveentech1999/petclinicalal123:latest "
+                        sh "docker push naveentech1999/petclinicalal123:latest "
+                    
                     }
                 }
             }
         }
-        
-        stage("TRIVY"){
+        stage("Deploy Using Docker"){
             steps{
-                sh " trivy image writetoritika/pet-clinic123:latest"
+                sh " docker run -d --name pet1 -p 8082:8082 naveentech1999/petclinicalal123:latest "
             }
         }
         
-        stage("Deploy To Tomcat"){
-            steps{
-                sh "cp  /var/lib/jenkins/workspace/CI-CD/target/petclinic.war /opt/apache-tomcat-9.0.65/webapps/ "
-            }
-        }
     }
 }
